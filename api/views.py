@@ -4,6 +4,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Movie, Rating
 from .serializers import MovieSerializer, RatingSerializer, UserSerializer
 
@@ -16,6 +17,10 @@ class MovieViewSet(viewsets.ModelViewSet):
     serializer_class = MovieSerializer
     queryset = Movie.objects.all()
     authentication_classes = (TokenAuthentication, )
+    # 一定要登入才能夠存取使用
+    permission_classes = (IsAuthenticated, )
+    # 無須驗證即可存取使用
+    # permission_classes = (AllowAny, )
 
     # 備註：需搭配 postman軟體來測試 API
     @action(detail = True, methods=['POST'])
@@ -69,3 +74,5 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
     authentication_classes = (TokenAuthentication, )
+    # 一定要登入才能夠存取使用
+    permission_classes = (IsAuthenticated, )
