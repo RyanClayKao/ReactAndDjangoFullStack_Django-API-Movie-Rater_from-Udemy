@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.authentication import TokenAuthentication
 from .models import Movie, Rating
 from .serializers import MovieSerializer, RatingSerializer
 
@@ -10,6 +11,7 @@ from .serializers import MovieSerializer, RatingSerializer
 class MovieViewSet(viewsets.ModelViewSet):
     serializer_class = MovieSerializer
     queryset = Movie.objects.all()
+    authentication_classes = (TokenAuthentication, )
 
     # 備註：需搭配 postman軟體來測試 API
     @action(detail = True, methods=['POST'])
@@ -29,9 +31,15 @@ class MovieViewSet(viewsets.ModelViewSet):
             # 目前這裡會輸出「user: AnonymousUser」，因為並沒有拿到真正登入者的資訊
             # user = request.user
             # print('user:', user)
+
             # 如上述，因此暫且先 hardcode取得 User資料
-            user = User.objects.get(id=1)
-            print('user:', user.username) # 輸出「uesr: Ryan」 (當時設定的 superuser是 Ryan這個 user)
+            # user = User.objects.get(id=1)
+            # print('user:', user.username) # 輸出「uesr: Ryan」 (當時設定的 superuser是 Ryan這個 user)
+
+            # 當request header有附上 Token後，就能透過「authentication_classes = (TokenAuthentication, )」的設定，來取用 user資料
+            user = request.user # 能夠成功透過 token解析出 user資料
+            print('user:', user) # 輸出「user: Ryan」
+
 
             try:
                 rating = Rating.objects.get(user=user.id, movie=movie.id)
@@ -56,3 +64,4 @@ class MovieViewSet(viewsets.ModelViewSet):
 class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
+    authentication_classes = (TokenAuthentication, )
